@@ -16,10 +16,10 @@ from grape.datasets.kgobo import NCBITAXON
 
 def main():
     # load lotus
-    species = pd.read_csv(
+    lotus = pd.read_csv(
         "./data/molecules/230106_frozen_metadata.csv.gz", low_memory=False
     )
-    species["wd_taxon"] = "wd:" + species["organism_wikidata"].str.extract(r"(Q\d+)")
+    lotus["wd_taxon"] = "wd:" + lotus["organism_wikidata"].str.extract(r"(Q\d+)")
 
     # keep only the species with a NCBI taxonomy ID
     species = species.dropna(subset="organism_taxonomy_ncbiid").drop_duplicates(
@@ -48,7 +48,10 @@ def main():
                 }
             ),
             pd.DataFrame(
-                {"node": wd_to_ncbi_edges.ncbi, "type": "biolink:OrganismalEntity"}
+                {
+                    "node": wd_to_ncbi_edges.ncbi,
+                    "type": "biolink:OrganismalEntity",
+                }
             ),
         ]
     ).drop_duplicates()
@@ -108,6 +111,15 @@ def main():
     lotus_with_ncbi_cleaned = lotus_with_ncbi.remove_singleton_nodes()
     lotus_with_ncbi_cleaned = lotus_with_ncbi_cleaned.remove_components(
         top_k_components=1
+    )
+
+    # filter species with no phylogeny
+    lotus["wd_species"] = "wd:" + lotus.organism_wikidata.str.extract(r"(Q\d+)")
+    species_phylo = pd.read_csv("./data/species/species_nodes.csv")
+    species_to_remove = list(set(lotus.wd_species) - set(species_phylo.node))
+
+    lotus_with_ncbi_cleaned = lotus_with_ncbi_cleaned.filter_from_names(
+        node_names_to_remove=list(species_to_remove),
     )
 
     lotus_with_ncbi_cleaned.dump_nodes(

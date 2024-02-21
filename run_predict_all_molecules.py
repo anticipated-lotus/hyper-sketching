@@ -3,7 +3,7 @@ from src.models import XGBoost
 import pandas as pd
 from grape import Graph
 from tqdm import tqdm
-from src.predict import run_predictions_on_all_molecules_for_one_species
+from src.predict import predict_all_molecules_for_one_species
 
 model = XGBoost.load_model("xgboost_model.pkl")
 
