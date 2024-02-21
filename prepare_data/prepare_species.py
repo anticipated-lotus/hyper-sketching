@@ -23,7 +23,8 @@ def main():
 
     # Extract the wikidata taxon IDs from the organism_wikidata column
     lotus["wd_taxon"] = lotus["organism_wikidata"].str.extract(r"(Q\d+)")
-    # lotus["wd_taxon"] = "wd:" + lotus["wd_taxon"]
+    # lotus["wd_taxon"] = "wd:" + lotus["wd_taxon"] --> this part what removed since the new
+    # function does not require the "wd:" prefix (see : https://github.com/anticipated-lotus/hyper-sketching/blame/fd48cfff2cb7c64ae5e9711d9edb5e53e20e9b1e/src/wikidata.py#L43-L67)
 
     # Apply the taxonomy_in_edges function to each unique wd_taxon value. This will get the information of the species on wikidata and return a dataframe with the child and parent columns
     res = (

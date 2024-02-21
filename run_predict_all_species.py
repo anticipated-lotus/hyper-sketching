@@ -3,7 +3,7 @@ from src.models import XGBoost
 import pandas as pd
 from grape import Graph
 from tqdm import tqdm
-from src.predict import predict_all_molecules_for_one_species
+from src.predict import predict_all_species_for_one_molecule
 
 model = XGBoost.load_model("xgboost_model.pkl")
 
@@ -39,9 +39,9 @@ sketching_features = HyperSketchingPy(
 )
 sketching_features.fit()
 
-for species in tqdm(["wd:Q311176", "wd:Q15550965", "wd:Q21319402"]):
-    predict_all_molecules_for_one_species(
-        species=species,
+for molecule in tqdm(["wd:Q213511", "wd:Q283", "wd:Q105674316"]):
+    predict_all_species_for_one_molecule(
+        molecule=molecule,
         graph=graph,
         lotus=lotus,
         model=model,

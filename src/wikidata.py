@@ -153,28 +153,3 @@ def taxonomy_in_edges(species: str):
     taxo = get_taxonomy(species)
     out = convert_to_edges(taxo)
     return pd.DataFrame(out)
-
-
-# def get_taxo_in_edges_all(all_species, n_cpus=4):
-#    """
-#    Retrieves the taxonomy information for all species and converts them into edges.
-#
-#    Args:
-#        all_species (list): A list of Wikidata entity IDs of the species.
-#        n_cpus (int): The number of CPUs to use for parallel processing.
-#
-#    Returns:
-#        pd.DataFrame: The edges of the taxonomy graph for all species as a pandas DataFrame.
-#    """
-#    with Pool(processes=n_cpus) as pool:
-#        ls = pool.map(taxonomy_in_edges, all_species)
-#    return pd.concat(ls).drop_duplicates().reset_index(drop=True).dropna()
-
-
-if __name__ == "__main__":
-    x = get_taxonomy("wd:Q7224923")
-    # the last WD entity (Q15869) is not a species so if there are this kind of errors, the function will just ignore those
-    ls = ["wd:Q7224923", "wd:Q158695"]
-    y = [taxonomy_in_edges(i) for i in ls]
-    y = pd.concat(y).drop_duplicates().reset_index(drop=True).dropna()
-    print(y)
