@@ -40,13 +40,31 @@ def get_taxonomy(species_as_wikidata_entity: str) -> pd.DataFrame:
     """
     endpoint_url = "https://query.wikidata.org/sparql"
 
-    query = """SELECT ?entity ?entityLabel (count(?mid) as ?depth) WHERE {
-      %s wdt:P171* ?mid.
-      ?entity wdt:P225 ?entityLabel.
-      ?mid wdt:P171* ?entity.
-      SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
-    } group by ?entity ?entityLabel
-    order by desc(?depth)""" % (
+    query = """PREFIX target: <http://www.wikidata.org/entity/%s>
+    # Doctoral student/advisor network with a source from a spectific researcher
+    PREFIX gas: <http://www.bigdata.com/rdf/gas#>
+
+    SELECT DISTINCT ?taxon ?taxonLabel ?relative ?relativeLabel ?depth
+    WHERE {
+      { 
+        SELECT ?taxon ?relative (MIN(?depth1) as ?depth)
+        WHERE {
+          SERVICE gas:service {
+            gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.BFS" ;
+                    gas:in target: ;
+                    gas:traversalDirection "Forward" ;
+                    gas:out ?taxon ;
+                    gas:out1 ?depth1 ;
+                    gas:out2 ?relative ;
+                    gas:linkType wdt:P171 ;
+          }
+        }
+        GROUP BY ?taxon ?relative
+      }
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "en,da,sv,jp,zh,ru,fr,de" .  } 
+    }
+
+    """ % (
         species_as_wikidata_entity
     )
     try:
@@ -110,17 +128,12 @@ def convert_to_edges(df: pd.DataFrame):
     Returns:
         pd.DataFrame: The edges of the taxonomy graph as a pandas DataFrame.
     """
-    if "entity.value" not in df.columns:
+    if "taxon.value" not in df.columns:
         return pd.DataFrame({0: [float("nan")], 1: [float("nan")]})
 
-    column = df["entity.value"].copy()
-    first_elements = column
-    next_elements = column.shift(1)
-    return (
-        pd.DataFrame({0: first_elements, 1: next_elements})
-        .dropna()
-        .reset_index(drop=True)
-    )
+    parent = df["taxon.value"].copy()
+    child = df["relative.value	"].copy()
+    return pd.DataFrame({0: child, 1: parent}).dropna().reset_index(drop=True)
 
 
 @Cache(
