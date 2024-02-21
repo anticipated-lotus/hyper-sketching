@@ -132,7 +132,7 @@ def convert_to_edges(df: pd.DataFrame):
         return pd.DataFrame({0: [float("nan")], 1: [float("nan")]})
 
     parent = df["taxon.value"].copy()
-    child = df["relative.value	"].copy()
+    child = df["relative.value"].copy()
     return pd.DataFrame({0: child, 1: parent}).dropna().reset_index(drop=True)
 
 
