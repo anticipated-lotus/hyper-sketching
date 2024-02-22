@@ -114,7 +114,7 @@ def main():
     )
 
     # filter species with no phylogeny
-    lotus["wd_species"] = "wd:" + lotus.organism_wikidata.str.extract(r"(Q\d+)")
+    lotus["wd_species"] = "wd:" + lotus["organism_wikidata"].str.extract(r"(Q\d+)")
     species_phylo = pd.read_csv("./data/species/species_nodes.csv")
     species_to_remove = list(set(lotus.wd_species) - set(species_phylo.node))
 
