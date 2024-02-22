@@ -31,12 +31,12 @@ def main():
     )
 
     species = Graph.from_csv(
-        node_path="./data/species/species_nodes.csv",
+        node_path="./data/species/full_wikidata_taxonomy_nodes.csv",
         node_list_separator=",",
         node_list_header=True,
         nodes_column_number=1,
         node_list_node_types_column_number=2,
-        edge_path="./data/species/species_edges.csv",
+        edge_path="./data/species/full_wikidata_taxonomy_edges.csv",
         edge_list_separator=",",
         edge_list_header=True,
         sources_column_number=1,
@@ -106,7 +106,7 @@ def main():
     full_graph = chemicals_and_lotus | species
 
     full_graph.dump_nodes(
-        path="./data/full_lotus_nodes.csv",
+        path="./data/full_wd_taxonomy_with_molecules_in_lotus_nodes.csv",
         header=True,
         nodes_column_number=0,
         nodes_column="nodes",
@@ -115,7 +115,7 @@ def main():
     )
 
     full_graph.dump_edges(
-        path="./data/full_lotus_edges.csv",
+        path="./data/full_wd_taxonomy_with_molecules_in_lotus_edges.csv",
         header=True,
         directed=True,
         edge_types_column_number=2,

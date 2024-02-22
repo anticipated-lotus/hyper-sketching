@@ -1,4 +1,3 @@
-from multiprocessing import Pool
 import pandas as pd
 import sys
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -28,12 +27,12 @@ def get_results(endpoint_url, query):
     return sparql.query().convert()
 
 
-def get_taxonomy(species_as_wikidata_entity: str) -> pd.DataFrame:
+def get_taxonomy_of_species(species_as_wikidata_entity: str) -> pd.DataFrame:
     """
     Retrieves the taxonomy information for a given species from Wikidata.
 
     Args:
-        species_as_wikidata_entity (str): The Wikidata entity ID of the species.
+        species_as_wikidata_entity (str): The Wikidata entity ID of the species (should start with Q and some numbers).
 
     Returns:
         pd.DataFrame: The taxonomy information as a pandas DataFrame.
@@ -150,6 +149,36 @@ def taxonomy_in_edges(species: str):
     Returns:
         pd.DataFrame: The edges of the taxonomy graph for the species as a pandas DataFrame.
     """
-    taxo = get_taxonomy(species)
+    taxo = get_taxonomy_of_species(species)
     out = convert_to_edges(taxo)
     return pd.DataFrame(out)
+
+
+def get_full_taxonomy_of_wikidata():
+    endpoint_url = "https://query.wikidata.org/sparql"
+
+    query = """PREFIX hint: <http://www.bigdata.com/queryHints#>
+    PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+
+    SELECT ?taxon ?parent {
+    ?taxon wdt:P171 ?parent. hint:Prior hint:rangeSafe true.
+    }
+    """
+    try:
+        results = get_results(endpoint_url, query)
+        return pd.json_normalize(results["results"]["bindings"])
+
+    except ConnectionAbortedError:
+        time.sleep(0.5)
+        results = get_results(endpoint_url, query)
+        return pd.json_normalize(results["results"]["bindings"])
+
+    except ConnectionError:
+        time.sleep(0.5)
+        results = get_results(endpoint_url, query)
+        return pd.json_normalize(results["results"]["bindings"])
+
+    except ConnectTimeout:
+        time.sleep(0.5)
+        results = get_results(endpoint_url, query)
+        return pd.json_normalize(results["results"]["bindings"])

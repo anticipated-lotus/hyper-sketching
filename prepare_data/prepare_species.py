@@ -8,7 +8,7 @@ current_script_path = os.path.abspath(__file__)
 project_root = os.path.dirname(os.path.dirname(current_script_path))
 sys.path.insert(0, project_root)
 
-from src.wikidata import taxonomy_in_edges
+from src.wikidata import taxonomy_in_edges, get_full_taxonomy_of_wikidata
 from tqdm import tqdm
 import pandas as pd
 
@@ -16,45 +16,36 @@ tqdm.pandas()
 
 
 def main():
-    # Read the lotus data from the specified file
-    lotus = pd.read_csv(
-        "./data/molecules/230106_frozen_metadata.csv.gz", low_memory=False
+    full_taxonomy = get_full_taxonomy_of_wikidata()
+
+    full_taxonomy.rename(
+        columns={
+            "taxon.value": "child",
+            "parent.value": "parent",
+        },
+        inplace=True,
     )
-
-    # Extract the wikidata taxon IDs from the organism_wikidata column
-    lotus["wd_taxon"] = lotus["organism_wikidata"].str.extract(r"(Q\d+)")
-    # lotus["wd_taxon"] = "wd:" + lotus["wd_taxon"] --> this part what removed since the new
-    # function does not require the "wd:" prefix (see : https://github.com/anticipated-lotus/hyper-sketching/blame/fd48cfff2cb7c64ae5e9711d9edb5e53e20e9b1e/src/wikidata.py#L43-L67)
-
-    # Apply the taxonomy_in_edges function to each unique wd_taxon value. This will get the information of the species on wikidata and return a dataframe with the child and parent columns
-    res = (
-        lotus.wd_taxon.drop_duplicates()
-        .reset_index(drop=True)
-        .progress_apply(taxonomy_in_edges)
-    )
-
-    # Concatenate the resulting dataframes, drop duplicates and NaN values
-    species_phylo = (
-        pd.concat(list(res)).drop_duplicates().dropna().reset_index(drop=True)
-    )
-
-    # Rename the columns of the species_phylo dataframe
-    species_phylo.rename(columns={0: "child", 1: "parent"}, inplace=True)
+    full_taxonomy.dropna().drop_duplicates().reset_index(drop=True, inplace=True)
+    full_taxonomy.drop(columns=["taxon.type", "parent.type"], inplace=True)
 
     # Add "wd:" prefix to the child and parent columns
-    species_phylo["child"] = "wd:" + species_phylo["child"].str.extract(r"(Q\d+)")
-    species_phylo["parent"] = "wd:" + species_phylo["parent"].str.extract(r"(Q\d+)")
+    full_taxonomy["child"] = "wd:" + full_taxonomy["child"].str.extract(r"(Q\d+)")
+    full_taxonomy["parent"] = "wd:" + full_taxonomy["parent"].str.extract(r"(Q\d+)")
 
     # Add a edge type column with value "biolink:subclass_of"
-    species_phylo["type"] = "biolink:subclass_of"
+    full_taxonomy["type"] = "biolink:subclass_of"
 
-    # Save the species_phylo dataframe to a CSV file
-    species_phylo.to_csv("./data/species/species_edges.csv")
+    # drop NaN one more time
+    full_taxonomy.dropna(inplace=True)
+    full_taxonomy.reset_index(drop=True, inplace=True)
+
+    # Save the full_taxonomy dataframe to a CSV file
+    full_taxonomy.to_csv("./data/species/full_wikidata_taxonomy_edges.csv")
 
     # Create a dataframe with unique node values and "biolink:OrganismTaxon" type
     species_nodes = pd.DataFrame(
         {
-            "node": pd.concat([species_phylo.child, species_phylo.parent])
+            "node": pd.concat([full_taxonomy.child, full_taxonomy.parent])
             .drop_duplicates()
             .values,
             "type": "biolink:OrganismTaxon",
@@ -62,7 +53,7 @@ def main():
     )
 
     # Save the species_nodes dataframe to a CSV file
-    species_nodes.to_csv("./data/species/species_nodes.csv")
+    species_nodes.to_csv("./data/species/full_wikidata_taxonomy_nodes.csv")
 
 
 if __name__ == "__main__":

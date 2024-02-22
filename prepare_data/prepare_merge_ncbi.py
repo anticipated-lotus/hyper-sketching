@@ -69,12 +69,12 @@ def main():
 
     lotus = Graph.from_csv(
         name="LOTUS",
-        node_path="./data/full_lotus_nodes.csv",
+        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_nodes.csv",
         node_list_separator="\t",
         node_list_header=True,
         nodes_column_number=0,
         node_list_node_types_column_number=1,
-        edge_path="./data/full_lotus_edges.csv",
+        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_edges.csv",
         edge_list_separator="\t",
         edge_list_header=True,
         sources_column_number=0,
@@ -91,7 +91,7 @@ def main():
     lotus_with_ncbi = lotus | wd_to_ncbi_graph | ncbi_graph.to_directed()
 
     lotus_with_ncbi.dump_nodes(
-        path="./data/lotus_with_ncbi_nodes.csv",
+        path="./data/full_graph_with_ncbi_nodes.csv",
         header=True,
         nodes_column_number=0,
         nodes_column="nodes",
@@ -100,7 +100,7 @@ def main():
     )
 
     lotus_with_ncbi.dump_edges(
-        path="./data/lotus_with_ncbi_edges.csv",
+        path="./data/full_graph_with_ncbi_edges.csv",
         header=True,
         directed=True,
         edge_types_column_number=2,
@@ -123,7 +123,7 @@ def main():
     )
 
     lotus_with_ncbi_cleaned.dump_nodes(
-        path="./data/lotus_with_ncbi_clean_nodes.csv",
+        path="./data/full_graph_with_ncbi_clean_nodes.csv",
         header=True,
         nodes_column_number=0,
         nodes_column="nodes",
@@ -131,7 +131,7 @@ def main():
         node_type_column="type",
     )
     lotus_with_ncbi_cleaned.dump_edges(
-        path="./data/lotus_with_ncbi_clean_edges.csv",
+        path="./data/full_graph_with_ncbi_clean_nodes.csv",
         header=True,
         directed=True,
         edge_types_column_number=2,
