@@ -69,12 +69,12 @@ def main():
 
     lotus = Graph.from_csv(
         name="LOTUS",
-        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_nodes_clean.csv",
+        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_nodes.csv",
         node_list_separator="\t",
         node_list_header=True,
         nodes_column_number=0,
         node_list_node_types_column_number=1,
-        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_edges_clean.csv",
+        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_edges.csv",
         edge_list_separator="\t",
         edge_list_header=True,
         sources_column_number=0,
