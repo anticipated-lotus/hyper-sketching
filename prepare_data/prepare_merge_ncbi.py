@@ -134,7 +134,7 @@ def main():
         node_type_column="type",
     )
     lotus_with_ncbi_cleaned.dump_edges(
-        path="./data/full_graph_with_ncbi_clean_nodes.csv",
+        path="./data/full_graph_with_ncbi_clean_edges.csv",
         header=True,
         directed=True,
         edge_types_column_number=2,

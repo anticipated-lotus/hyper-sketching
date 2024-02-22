@@ -46,8 +46,7 @@ python prepare_data/prepare_NPClassifier.py
 ```
 
 ### Prepare species
-The species edge list will take much longer to prepare. This is due to the fact that for each species, the script will fetch the data on wikidata and the create an edge list from there. 
-Use the command below to prepare the species edge list. :warning: this usually takes about 7 hours to run. So be patient :). In case you need to stop the process (using Ctrl+C), the function is equipped with a cache system that will allow you to restart the process from where you stopped it. 
+The species edge list will take a bit longer to prepare (2-3 minutes). We are downloading the entire taxonomy from Wikidata using [this query](https://w.wiki/9FKC).
 ```bash
 python prepare_data/prepare_species.py 
 ```
@@ -63,7 +62,7 @@ Finally we need to merge the data from NCBI and LOTUS.
 python prepare_data/prepare_merge_ncbi.py
 ```
 
-Once this is done you should have different graph as such : 
+Once this is done you should have in the `data` folder the following structure, with the following graphs available:
 ```shell
 .
 ├── full_lotus_edges.csv
