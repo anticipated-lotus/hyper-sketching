@@ -55,6 +55,7 @@ def run(
         tmp["normalize"] = normalize
         tmp["model_class"] = model_class.__name__
         tmp["max_evals"] = max_evals
+        tmp["graph"] = graph.get_name()
 
         results.append(tmp)
 
