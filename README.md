@@ -69,10 +69,10 @@ Once this is done you should have in the `data` folder the following structure, 
 ├── full_graph_with_ncbi_clean_nodes.csv
 ├── full_graph_with_ncbi_edges.csv
 ├── full_graph_with_ncbi_nodes.csv
+├── full_wd_taxonomy_with_molecules_in_lotus_clean_edges.csv
+├── full_wd_taxonomy_with_molecules_in_lotus_clean_nodes.csv
 ├── full_wd_taxonomy_with_molecules_in_lotus_edges.csv
-├── full_wd_taxonomy_with_molecules_in_lotus_edges_clean.csv
 ├── full_wd_taxonomy_with_molecules_in_lotus_nodes.csv
-├── full_wd_taxonomy_with_molecules_in_lotus_nodes_clean.csv
 ├── lotus
 │   ├── lotus_edges.csv
 │   └── lotus_nodes.csv
@@ -92,7 +92,20 @@ Once this is done you should have in the `data` folder the following structure, 
     └── full_wikidata_taxonomy_nodes.csv
 ```
 
-In our case we will use the `lotus_with_ncbi_clean` graph. But all the other graphs are also available in case you want to explore them.
+### Choose the graph
+You can choose which graph you want to use for the analysis. Here is an explanation of the different graphs:
+- `full_graph_with_ncbi_clean` : This graph contains all the data from LOTUS, the taxonomy from wikidata and the taxonomy from NCBI. It is cleaned meaning that there are no disconnected components in the graph.
+- `full_graph_with_ncbi`: This graph contains all the data from LOTUS, the taxonomy from wikidata and the taxonomy from NCBI. This one is **not** cleaned meaning that there are some disconnected components in the graph.
+- `full_wd_taxonomy_with_molecules_in_lotus_clean` : This graph contains the taxonomy from wikidata and the molecules from LOTUS (with the classification of the molecules). It is cleaned meaning that there are no disconnected components in the graph.
+- `full_wd_taxonomy_with_molecules_in_lotus` : This graph is the same as the previous one. This one is **not** cleaned meaning that there are some disconnected components in the graph.
+- `lotus/lotus` : This graph is only a bipartite graph with the species and the molecules from LOTUS.
+- `molecules/chemont` : This graph contains only the different classes of molecules from Classyfire.
+- `molecules/mol_to_chemont` : This graph contains the molecules **and** the classes of molecules from Classyfire.
+- `molecules/mol_to_np` : This graph contains the molecules **and** the classes of molecules from NPClassifier.
+- `species/full_wikidata_taxonomy` : This graph contains the entire taxonomy of the species on Earth from Wikidata.
+
+
+In our case we will either use the `full_graph_with_ncbi_clean` or `full_wd_taxonomy_with_molecules_in_lotus_clean`. Further tests need to be made to see which one is the best for the predictions.
 
 ### Run the analysis
 This is not possible at the moment because the module `ensmallen` from [grape](https://github.com/AnacletoLAB/grape) does not support the HyperSketching yet. Once it will be available, we recommend to first run the `run_model_dummy.py` script with `max_eval=1`. This will first create the sketching of the different holdouts of training and testing. Then you can run the script with `max_eval=100` or more to find the best parameters of the model.
