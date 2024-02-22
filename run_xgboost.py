@@ -5,13 +5,16 @@ from src.models import XGBoost
 
 def main():
     graph = Graph.from_csv(
-        name="lotus_with_ncbi",
-        node_path="./data/lotus_with_ncbi_clean_nodes.csv",
+        # name="lotus_with_ncbi",
+        # node_path="./data/full_graph_with_ncbi_clean_nodes.csv",
+        # edge_path="./data/full_graph_with_ncbi_clean_edges.csv",
+        name="lotus_with_wikidata",
+        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_nodes.csv",
+        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_edges.csv",
         node_list_separator="\t",
         node_list_header=True,
         nodes_column_number=0,
         node_list_node_types_column_number=1,
-        edge_path="./data/lotus_with_ncbi_clean_edges.csv",
         edge_list_separator="\t",
         edge_list_header=True,
         sources_column_number=0,
