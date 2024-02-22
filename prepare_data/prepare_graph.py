@@ -10,6 +10,7 @@ sys.path.insert(0, project_root)
 
 
 from grape import Graph
+import pandas as pd
 
 
 def main():
@@ -120,6 +121,40 @@ def main():
         directed=True,
         edge_types_column_number=2,
         edge_type_column="type",
+    )
+
+    full_graph_clean = full_graph.remove_singleton_nodes()
+    full_graph_clean = full_graph_clean.remove_components(top_k_components=1)
+
+    # filter species with no phylogeny
+    lotus_df = pd.read_csv(
+        "./data/molecules/230106_frozen_metadata.csv.gz", low_memory=False
+    )
+    lotus_df["wd_species"] = "wd:" + lotus_df["organism_wikidata"].str.extract(
+        r"(Q\d+)"
+    )
+    species_phylo = pd.read_csv("./data/species/full_wikidata_taxonomy_nodes.csv")
+    species_to_remove = list(set(lotus_df.wd_species) - set(species_phylo.node))
+
+    full_graph_clean = full_graph_clean.filter_from_names(
+        node_names_to_remove=list(species_to_remove),
+    )
+
+    full_graph_clean.dump_nodes(
+        path="./data/full_wd_taxonomy_with_molecules_in_lotus_nodes_clean.csv",
+        header=True,
+        nodes_column_number=0,
+        nodes_column="nodes",
+        node_types_column_number=1,
+        node_type_column="type",
+    )
+
+    full_graph_clean.dump_edges(
+        path="./data/full_wd_taxonomy_with_molecules_in_lotus_edges_clean.csv",
+        header=True,
+        directed=True,
+        edge_types_column_number=2,
+        edge_type_column="edge_type",
     )
 
 

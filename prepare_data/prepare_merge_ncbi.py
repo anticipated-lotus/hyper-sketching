@@ -69,12 +69,12 @@ def main():
 
     lotus = Graph.from_csv(
         name="LOTUS",
-        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_nodes.csv",
+        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_nodes_clean.csv",
         node_list_separator="\t",
         node_list_header=True,
         nodes_column_number=0,
         node_list_node_types_column_number=1,
-        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_edges.csv",
+        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_edges_clean.csv",
         edge_list_separator="\t",
         edge_list_header=True,
         sources_column_number=0,
@@ -111,18 +111,6 @@ def main():
     lotus_with_ncbi_cleaned = lotus_with_ncbi.remove_singleton_nodes()
     lotus_with_ncbi_cleaned = lotus_with_ncbi_cleaned.remove_components(
         top_k_components=1
-    )
-
-    # filter species with no phylogeny
-    lotus = pd.read_csv(
-        "./data/molecules/230106_frozen_metadata.csv.gz", low_memory=False
-    )
-    lotus["wd_species"] = "wd:" + lotus["organism_wikidata"].str.extract(r"(Q\d+)")
-    species_phylo = pd.read_csv("./data/species/full_wikidata_taxonomy_nodes.csv")
-    species_to_remove = list(set(lotus.wd_species) - set(species_phylo.node))
-
-    lotus_with_ncbi_cleaned = lotus_with_ncbi_cleaned.filter_from_names(
-        node_names_to_remove=list(species_to_remove),
     )
 
     lotus_with_ncbi_cleaned.dump_nodes(

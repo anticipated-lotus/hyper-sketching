@@ -65,18 +65,19 @@ python prepare_data/prepare_merge_ncbi.py
 Once this is done you should have in the `data` folder the following structure, with the following graphs available:
 ```shell
 .
-├── full_lotus_edges.csv
-├── full_lotus_nodes.csv
+├── full_graph_with_ncbi_clean_edges.csv
+├── full_graph_with_ncbi_clean_nodes.csv
+├── full_graph_with_ncbi_edges.csv
+├── full_graph_with_ncbi_nodes.csv
+├── full_wd_taxonomy_with_molecules_in_lotus_edges.csv
+├── full_wd_taxonomy_with_molecules_in_lotus_nodes.csv
 ├── lotus
 │   ├── lotus_edges.csv
 │   └── lotus_nodes.csv
-├── lotus_with_ncbi_clean_edges.csv
-├── lotus_with_ncbi_clean_nodes.csv
-├── lotus_with_ncbi_edges.csv
-├── lotus_with_ncbi_nodes.csv
 ├── molecules
 │   ├── 230106_frozen_metadata.csv.gz
 │   ├── ChemOnt_2_1.obo
+│   ├── ChemOnt_2_1.obo.zip
 │   ├── NPClassifier_index.json
 │   ├── chemont_edges.csv
 │   ├── chemont_nodes.csv
@@ -85,10 +86,8 @@ Once this is done you should have in the `data` folder the following structure, 
 │   ├── mol_to_np_edges.csv
 │   └── mol_to_np_nodes.csv
 └── species
-    ├── all_species
-    │   ├── wd:Q1000854
-    │   │   ├── f8e4a60d0bd3c1ce7b5195129445f73b822bdf1b041b14e1256f6d5c8bcc441e.csv.gz
-    │   │   └── f8e4a60d0bd3c1ce7b5195129445f73b822bdf1b041b14e1256f6d5c8bcc441e.csv.gz.metadata
+    ├── full_wikidata_taxonomy_edges.csv
+    └── full_wikidata_taxonomy_nodes.csv
 ```
 
 In our case we will use the `lotus_with_ncbi_clean` graph. But all the other graphs are also available in case you want to explore them.
