@@ -8,11 +8,8 @@ current_script_path = os.path.abspath(__file__)
 project_root = os.path.dirname(os.path.dirname(current_script_path))
 sys.path.insert(0, project_root)
 
-from src.wikidata import taxonomy_in_edges, get_full_taxonomy_of_wikidata
-from tqdm import tqdm
+from src.wikidata import get_full_taxonomy_of_wikidata
 import pandas as pd
-
-tqdm.pandas()
 
 
 def main():

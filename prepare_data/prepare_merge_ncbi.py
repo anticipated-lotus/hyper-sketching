@@ -22,17 +22,17 @@ def main():
     lotus["wd_taxon"] = "wd:" + lotus["organism_wikidata"].str.extract(r"(Q\d+)")
 
     # keep only the species with a NCBI taxonomy ID
-    species = species.dropna(subset="organism_taxonomy_ncbiid").drop_duplicates(
+    lotus = lotus.dropna(subset="organism_taxonomy_ncbiid").drop_duplicates(
         subset="organism_taxonomy_ncbiid"
     )
 
     # create a dataframe with the edges
     wd_to_ncbi_edges = pd.DataFrame(
         {
-            "wikidata": species["wd_taxon"],
+            "wikidata": lotus["wd_taxon"],
             "ncbi": [
                 f"NCBITaxon:{i}"
-                for i in species["organism_taxonomy_ncbiid"].astype(int).values
+                for i in lotus["organism_taxonomy_ncbiid"].astype(int).values
             ],
             "type": "biolink:same_as",
         }
