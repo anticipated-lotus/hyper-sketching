@@ -141,7 +141,7 @@ def main():
     )
 
     full_graph_clean.dump_nodes(
-        path="./data/full_wd_taxonomy_with_molecules_in_lotus_nodes_clean.csv",
+        path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_nodes.csv",
         header=True,
         nodes_column_number=0,
         nodes_column="nodes",
@@ -150,7 +150,7 @@ def main():
     )
 
     full_graph_clean.dump_edges(
-        path="./data/full_wd_taxonomy_with_molecules_in_lotus_edges_clean.csv",
+        path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_edges.csv",
         header=True,
         directed=True,
         edge_types_column_number=2,

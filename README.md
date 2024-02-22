@@ -70,7 +70,9 @@ Once this is done you should have in the `data` folder the following structure, 
 ├── full_graph_with_ncbi_edges.csv
 ├── full_graph_with_ncbi_nodes.csv
 ├── full_wd_taxonomy_with_molecules_in_lotus_edges.csv
+├── full_wd_taxonomy_with_molecules_in_lotus_edges_clean.csv
 ├── full_wd_taxonomy_with_molecules_in_lotus_nodes.csv
+├── full_wd_taxonomy_with_molecules_in_lotus_nodes_clean.csv
 ├── lotus
 │   ├── lotus_edges.csv
 │   └── lotus_nodes.csv
