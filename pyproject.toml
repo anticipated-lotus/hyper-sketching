@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "lotus-hypersketching"
+version = "0.1.0"
+description = ""
+authors = ["Marco Visani <marco.visani@unifr.ch>"]
+license = "GPL-3.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+ensmallen = { file = "ensmallen-0.8.97-cp37-abi3-macosx_10_12_x86_64.whl" }
+
+python = "3.11.4"
+grape = "^0.2.3"
+obonet = "^1.0.0"
+sparqlwrapper = "^2.0.0"
+jupyterlab = "^4.1.2"
+hyperopt = "^0.2.7"
+pytest = "^8.0.1"
+xgboost = "^2.0.3"
+lightgbm = "^4.3.0"
+polars = "^0.20.10"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
