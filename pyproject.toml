@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 ensmallen = { file = "ensmallen-0.8.97-cp37-abi3-macosx_10_12_x86_64.whl" }
 
-python = "3.11.4"
+python = "^3.11"
 grape = "^0.2.3"
 obonet = "^1.0.0"
 sparqlwrapper = "^2.0.0"
@@ -20,6 +20,9 @@ xgboost = "^2.0.3"
 lightgbm = "^4.3.0"
 polars = "^0.20.10"
 streamlit = "^1.31.1"
+watchdog = "^4.0.0"
+setuptools = "^69.1.1"
+seaborn = "^0.13.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
