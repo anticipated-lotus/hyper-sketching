@@ -84,6 +84,7 @@ if selected_option == "Molecule":
         | (pl.col("structure_inchikey").str.contains("(?i)" + text_search))
         | (pl.col("structure_exact_mass").str.contains(text_search, literal=True))
         | (pl.col("structure_cid").str.contains(text_search, literal=True))
+        | (pl.col("structure_nameIupac").str.contains("(?i)" + text_search))
     )
 
     mask = mask.with_columns(
@@ -158,6 +159,14 @@ prediction = st.text_input(
     value="",
 )
 
+threshold = st.slider(
+    "Select the threshold for the predictions",
+    min_value=0.0,
+    max_value=1.0,
+    value=(0.75, 1.0),
+    step=0.01,
+)
+
 if prediction and selected_option == "Molecule":
 
     lotus = lotus.with_columns(
@@ -213,7 +222,9 @@ if prediction and selected_option == "Molecule":
         lambda x: check_if_in_lotus(x.wd_species, x.wd_molecules, graph),
         axis=1,
     )
-    final_df = lotus[lotus.proba > 0.75].sort_values("proba", ascending=False)
+    final_df = lotus[
+        (lotus.proba > threshold[0]) & (lotus.proba < threshold[1])
+    ].sort_values("proba", ascending=False)
 
     st.write(final_df)
 
@@ -236,7 +247,7 @@ if prediction and selected_option == "Species":
             "structure_taxonomy_npclassifier_02superclass",
             "structure_taxonomy_npclassifier_03class",
             "structure_taxonomy_classyfire_01kingdom",
-            "structure_taxonomy_classyfire_02superclass"
+            "structure_taxonomy_classyfire_02superclass",
             "structure_taxonomy_classyfire_03class",
             "structure_taxonomy_classyfire_04directparent",
         ]
@@ -272,6 +283,8 @@ if prediction and selected_option == "Species":
         lambda x: check_if_in_lotus(x.wd_species, x.wd_molecule, graph),
         axis=1,
     )
-    final_df = lotus[lotus.proba > 0.75].sort_values("proba", ascending=False)
+    final_df = lotus[
+        (lotus.proba > threshold[0]) & (lotus.proba < threshold[1])
+    ].sort_values("proba", ascending=False)
 
     st.write(final_df)
