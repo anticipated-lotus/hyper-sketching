@@ -34,7 +34,7 @@ class LightGBM(AbstractModel):
 
     def search_space():
         return {
-            "boosting_type": hp.choice("boosting_type", ["gbdt", "dart", "rf"]),
+            "boosting_type": hp.choice("boosting_type", ["gbdt", "dart"]),
             "num_leaves": hp.uniformint("num_leaves", 1, 100),
             "max_depth": hp.uniformint("max_depth", -1, 100),
             # "learning_rate": hp.uniform("learning_rate", 0, 1),
