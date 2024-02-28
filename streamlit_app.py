@@ -53,8 +53,25 @@ if "sketching_features" not in st.session_state:
 
 if "lotus" not in st.session_state:
     st.session_state["lotus"] = pl.read_csv(
-        "data/molecules/230106_frozen_metadata.csv.gz", infer_schema_length=100000
+        "data/molecules/230106_frozen_metadata.csv.gz",
+        dtypes={
+            "structure_xlogp": pl.Float32,
+            "structure_cid": pl.UInt32,
+            "organism_taxonomy_ncbiid": pl.UInt32,
+            "organism_taxonomy_ottid": pl.UInt32,
+            "structure_stereocenters_total": pl.UInt32,
+            "structure_stereocenters_unspecified": pl.UInt32,
+        },
+        infer_schema_length=50000,
+        null_values=["", "NA"],
     )
+    st.session_state["lotus"] = st.session_state["lotus"].with_columns(
+        pl.col("organism_taxonomy_gbifid")
+        .map_elements(lambda x: np.nan if x.startswith("c(") else x)
+        .cast(pl.UInt32)
+        .alias("organism_taxonomy_gbifid")
+    )
+
 
 if "species_phylo" not in st.session_state:
     st.session_state["species_phylo"] = pd.read_csv(
