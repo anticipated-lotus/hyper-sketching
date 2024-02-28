@@ -1,6 +1,48 @@
 [![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
 # LOTUS anticipated
 
+## Prepare environment 
+### Install pyenv
+First you will need to download `pyenv`  and `pipx`:
+```bash
+curl https://pyenv.run | bash
+```
+or use Homebrew:
+```bash
+brew install pyenv
+```
+
+### Install pipx
+The you can install pipx:
+```bash
+brew install pipx
+pipx ensurepath
+```
+Or if you are on Linux:
+```bash
+sudo apt update
+sudo apt install pipx
+pipx ensurepath
+```
+
+### Install poetry
+Then you can install poetry:
+```bash
+pipx install poetry
+```
+
+Finally you can install the environment:
+```bash
+poetry install
+```
+
+
+### Alternative: Install the environment in conda (NOT recommended):
+```bash 
+conda env create --file environment.yml
+conda activate grape
+```
+
 ## Download preprocessed data
 For running the analysis you can download the data from Zenodo: TODO
 ```bash
@@ -32,11 +74,7 @@ wget https://raw.githubusercontent.com/mwang87/NP-Classifier/master/Classifier/d
 mv ./index_v1.json ./data/molecules/NPClassifier_index.json
 ```
 
-We can then create and activate the environment : 
-```bash 
-conda env create --file environment.yml
-conda activate grape
-```
+
 
 ### Prepare molecules
 First run the following command to prepare lotus, the molecules and the molecule ontology:

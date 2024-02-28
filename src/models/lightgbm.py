@@ -21,7 +21,6 @@ class LightGBM(AbstractModel):
             boosting_type=boosting_type,
             num_leaves=num_leaves,
             max_depth=max_depth,
-            # learning_rate=learning_rate,
             n_estimators=n_estimators,
             importance_type=importance_type,
             random_state=83495,
@@ -37,7 +36,6 @@ class LightGBM(AbstractModel):
             "boosting_type": hp.choice("boosting_type", ["gbdt", "dart"]),
             "num_leaves": hp.uniformint("num_leaves", 1, 100),
             "max_depth": hp.uniformint("max_depth", -1, 100),
-            # "learning_rate": hp.uniform("learning_rate", 0, 1),
             "n_estimators": hp.choice(
                 "n_estimators", [10, 20, 50, 100, 200, 300, 1000]
             ),
@@ -50,7 +48,6 @@ class LightGBM(AbstractModel):
             boosting_type=params["boosting_type"],
             num_leaves=params["num_leaves"],
             max_depth=params["max_depth"],
-            # learning_rate=params["learning_rate"],
             n_estimators=params["n_estimators"],
             importance_type=params["importance_type"],
         )
