@@ -13,6 +13,17 @@ experiments/
 # remove pickles as they are not supported in the GitHub
 *.pkl
 
+# Ignore predictions
 predictions/
 
+# Ignore poetry lock file
 poetry.lock
+
+# Ignore VSCode settings
+.vscode/
+
+# remove .out files
+*.out
+
+# remove .sh files from cluster
+*.sh
