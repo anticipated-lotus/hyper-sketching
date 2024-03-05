@@ -2,17 +2,21 @@
 from grape import Graph
 from ensmallen import HyperSketchingPy
 import numpy as np
+from src.models import XGBoost, LightGBM
 
 
 def main():
     graph = Graph.from_csv(
-        name="LOTUS_with_NCBITaxon",
-        node_path="./data/lotus_with_ncbi_clean_nodes.csv",
+        # name="lotus_with_ncbi",
+        # node_path="./data/full_graph_with_ncbi_clean_nodes.csv",
+        # edge_path="./data/full_graph_with_ncbi_clean_edges.csv",
+        name="lotus_with_wikidata",
+        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_nodes.csv",
+        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_edges.csv",
         node_list_separator="\t",
         node_list_header=True,
         nodes_column_number=0,
         node_list_node_types_column_number=1,
-        edge_path="./data/lotus_with_ncbi_clean_edges.csv",
         edge_list_separator="\t",
         edge_list_header=True,
         sources_column_number=0,
@@ -92,21 +96,17 @@ def main():
 
     # Let's create the model now :
 
-    from src.models import XGBoost
-
-    model = XGBoost(
-        booster="gbtree",
-        grow_policy="lossguide",
-        max_depth=6,
-        max_leaves=33,
-        n_estimators=200,
-        tree_method="exact",
+    model = LightGBM(
+        boosting_type="gbdt",
+        importance_type="split",
+        max_depth=80,
+        n_estimators=100,
+        num_leaves=54,
     )
+
     print("Training the model...")
     model.fit(X_shuffled, label_shuffled)
-
-    # And save it :
-    model.dump_model("xgboost_model.pkl")
+    model.dump_model("lightgbm_model.pkl")
 
 
 if __name__ == "__main__":

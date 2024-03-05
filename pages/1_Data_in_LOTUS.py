@@ -17,7 +17,7 @@ def check_if_in_lotus(species, molecule, graph: Graph):
 
 # Load the data
 if "model" not in st.session_state:
-    st.session_state["model"] = XGBoost.load_model("xgboost_model.pkl")
+    st.session_state["model"] = XGBoost.load_model("lightgbm_model.pkl")
 
 if "graph" not in st.session_state:
     st.session_state["graph"] = Graph.from_csv(
@@ -79,17 +79,23 @@ if "species_phylo" not in st.session_state:
     )
 
 # Page setup
-st.set_page_config(page_title="Search data in LOTUS", page_icon="🐍", layout="wide")
-st.title("Search data in LOTUS")
+st.set_page_config(page_title="Anticipating LOTUS", page_icon="🪷", layout="wide")
+st.title("Anticipating LOTUS")
 
 
 lotus = st.session_state["lotus"]
 options = ["Molecule", "Species"]
 selected_option = st.selectbox(
-    "What are you looking for ? A molecule or a species ?", options
+    """Select if you want to predict the occurence of a molecule in all species (Molecule)
+    or if you want to find the most probable molecules present in a species (Species).
+    """,
+    options,
 )
 text_search = st.text_input(
-    "Search for a molecule or a species..",
+    """Search for the molecule or species of interest.
+    Molecules can be searched by their Wikidata ID, IUPAC name, SMILES, InChIKey, CID, or exact mass.
+    Species can be searched by their name, Wikidata ID, NCBI ID, OTT ID, or GBIF ID.
+    """,
     value="",
 )
 
@@ -170,9 +176,7 @@ if text_search:
 
 
 prediction = st.text_input(
-    "Now put your molecule or species of interest to get the predictions.\
-    If you put a molecule, it will return the predictions on all species. \
-    If you put a species, it will return the predictions on all molecules.",
+    """Now you can copy the value in the column `wd_molecule` or `wd_species` and paste in the box below to get the predictions.""",
     value="",
 )
 
