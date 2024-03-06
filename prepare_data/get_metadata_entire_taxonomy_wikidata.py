@@ -1,3 +1,7 @@
+#!/usr/bin/python3
+# This script was inspired from https://github.com/lotusnprod/lotus-search/blob/0e07c77e954359c7e1bae9df0952b7d12c02d697/update/taxo_helper.py from the https://github.com/lotusnprod/lotus-search repo
+# Check over there for the original (and maybe now) alternative version
+
 import csv
 import logging
 import os
