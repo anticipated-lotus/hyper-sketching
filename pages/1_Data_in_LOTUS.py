@@ -1,10 +1,11 @@
-import streamlit as st
-import polars as pl
-from src.models import XGBoost
-from grape import Graph
-from ensmallen import HyperSketchingPy
-import pandas as pd
 import numpy as np
+import pandas as pd
+import polars as pl
+import streamlit as st
+from ensmallen import HyperSketchingPy
+from grape import Graph
+
+from src.models import LightGBM
 
 
 # apply a function that looks at the species, anf if the molecule id is in the neighborhood of the species,
@@ -17,7 +18,7 @@ def check_if_in_lotus(species, molecule, graph: Graph):
 
 # Load the data
 if "model" not in st.session_state:
-    st.session_state["model"] = XGBoost.load_model("lightgbm_model.pkl")
+    st.session_state["model"] = LightGBM.load_model("lightgbm_model.pkl")
 
 if "graph" not in st.session_state:
     st.session_state["graph"] = Graph.from_csv(

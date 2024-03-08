@@ -152,3 +152,10 @@ This is not possible at the moment because the module `ensmallen` from [grape](h
 ### Train the model
 Once the best parameters are found, you can train the model using the `train_model.py` script. You should manually change the parameters and the model in the script according to the best parameters found.
 
+
+## Streamlit app
+Here are some new molecules from :
+* `CCC\C=C\C=C\C=C\C(O)CC1(O)OC(CC(O)C(O)C(O)C2OC(=O)C(C)C2O)C(O)C(O)C1O` from https://pubs.acs.org/doi/10.1021/acs.jnatprod.3c01043
+* `CC(C)CCC(C)C(=O)NCCCNC(=N)N` from https://pubs.acs.org/doi/10.1021/acs.jnatprod.3c01186
+* `CC2=CC(=O)CC3C(C)C(C)(COC1CC(O)C(O)C(C)O1)CCC23C` from https://pubs.acs.org/doi/10.1021/acs.jnatprod.3c00752
+* `CC1CCc2c(CCC=C(C)C)cnc3c(C)cc(O)c1c23` from https://pubs.acs.org/doi/10.1021/acs.jnatprod.3c01072

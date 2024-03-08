@@ -1,15 +1,41 @@
-import streamlit as st
-import requests
-import pandas as pd
-from src.models import XGBoost
-from grape import Graph
-import polars as pl
+from time import sleep
+from urllib.error import HTTPError
+
 import numpy as np
+import pandas as pd
+import polars as pl
+import requests
+import streamlit as st
 from ensmallen import HyperSketchingPy
+from grape import Graph
+
+from src.models import XGBoost
+from src.molecules import convert_to_csv, filter_df, get_result, structure_query
 
 # Constants
 URL_CLASSYFIRE = "https://structure.gnps2.org/classyfire?smiles="
 URL_NP_CLASSIFIER = "https://npclassifier.gnps2.org/classify?smiles="
+
+if "lotus" not in st.session_state:
+    st.session_state["lotus"] = pl.read_csv(
+        "data/molecules/230106_frozen_metadata.csv.gz",
+        dtypes={
+            "structure_xlogp": pl.Float32,
+            "structure_cid": pl.UInt32,
+            "organism_taxonomy_ncbiid": pl.UInt32,
+            "organism_taxonomy_ottid": pl.UInt32,
+            "structure_stereocenters_total": pl.UInt32,
+            "structure_stereocenters_unspecified": pl.UInt32,
+        },
+        infer_schema_length=50000,
+        null_values=["", "NA"],
+    )
+    st.session_state["lotus"] = st.session_state["lotus"].with_columns(
+        pl.col("organism_taxonomy_gbifid")
+        .map_elements(lambda x: np.nan if x.startswith("c(") else x)
+        .cast(pl.UInt32)
+        .alias("organism_taxonomy_gbifid")
+    )
 
 
 # Functions
@@ -67,16 +93,71 @@ compound = st.text_input(
 
 # Now that the user has entered the compound, we can classify it
 if compound:
-    # we start by classifying the compound with ClassyFire
+    # we start to classify the compound with the NP Classifier
+    dct = classify_with_np_classifier(compound)
+    _ = dct.pop("isglycoside")
+
     # We first create the edges dataframe
-    edges_classyfire = pd.json_normalize(classify_with_classyifre(compound))[
-        [
-            "smiles",
-            "direct_parent.chemont_id",
-            "subclass.chemont_id",
-            "class.chemont_id",
-        ]
-    ].T.reset_index(drop=True)
+    edges_np_classifier = (
+        pd.concat(
+            [
+                pd.DataFrame([compound]),
+                pd.DataFrame.from_dict(dct, orient="index"),
+            ]
+        )
+        .dropna()
+        .reset_index(drop=True)
+    )
+
+    edges_np_classifier[1] = edges_np_classifier.iloc[:, 0].shift(-1)
+    edges_np_classifier.dropna(inplace=True)
+    edges_np_classifier.rename(columns={0: "child", 1: "parent"}, inplace=True)
+    st.write("NP Classifier classified this molecule as : ")
+    st.write(edges_np_classifier)
+    edges_np_classifier["type"] = "biolink:subclass_of"
+
+    # then the nodes dataframe
+    nodes_np_classifier = (
+        pd.DataFrame(
+            {
+                "node": pd.concat(
+                    [edges_np_classifier.child, edges_np_classifier.parent]
+                ),
+                "type": "biolink:ChemicalEntity",
+            }
+        )
+        .drop_duplicates()
+        .reset_index(drop=True)
+    )
+
+    # we then classify the compound with ClassyFire
+    # We first create the edges dataframe
+    query_id = structure_query(compound)
+    with st.spinner(
+        "Please while the molecule is being classified on ClassyFire servers. This should not take more than a minute."
+    ):
+        sleep(10)
+    st.success("Done!")
+    edges_classyfire = filter_df(convert_to_csv(get_result(query_id)))
+    st.write("ClassyFire classified this molecule as : ")
+    st.write(edges_classyfire["Result"])
+    edges_classyfire.drop(
+        columns=[
+            "CompoundID",
+            "ClassifiedResults",
+            "Classification",
+            "Result",
+        ],
+        inplace=True,
+    )
+    edges_classyfire = pd.DataFrame(
+        pd.concat(
+            [
+                edges_classyfire["ChemOntID"],
+                pd.Series(compound),
+            ]
+        )[::-1]
+    ).reset_index(drop=True)
 
     edges_classyfire[1] = edges_classyfire.iloc[:, 0].shift(-1)
     edges_classyfire.dropna(inplace=True)
@@ -99,65 +180,6 @@ if compound:
         )
         .drop_duplicates()
         .reset_index(drop=True)
-    )
-
-    # we then classify the compound with the NP Classifier
-    dct = classify_with_np_classifier(compound)
-    _ = dct.pop("isglycoside")
-
-    # We first create the edges dataframe
-    edges_np_classifier = (
-        pd.concat(
-            [
-                pd.DataFrame([compound]),
-                pd.DataFrame.from_dict(dct, orient="index"),
-            ]
-        )
-        .dropna()
-        .reset_index(drop=True)
-    )
-
-    edges_np_classifier[1] = edges_np_classifier.iloc[:, 0].shift(-1)
-    edges_np_classifier.dropna(inplace=True)
-    edges_np_classifier.rename(columns={0: "child", 1: "parent"}, inplace=True)
-    edges_np_classifier["type"] = "biolink:subclass_of"
-
-    # then the nodes dataframe
-    nodes_np_classifier = (
-        pd.DataFrame(
-            {
-                "node": pd.concat(
-                    [edges_np_classifier.child, edges_np_classifier.parent]
-                ),
-                "type": "biolink:ChemicalEntity",
-            }
-        )
-        .drop_duplicates()
-        .reset_index(drop=True)
-    )
-
-
-# Load the data
-if "model" not in st.session_state:
-    st.session_state["model"] = XGBoost.load_model("lightgbm_model.pkl")
-
-if "graph" not in st.session_state:
-    st.session_state["graph"] = Graph.from_csv(
-        name="lotus_with_wikidata",
-        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_nodes.csv",
-        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_edges.csv",
-        node_list_separator="\t",
-        node_list_header=True,
-        nodes_column_number=0,
-        node_list_node_types_column_number=1,
-        edge_list_separator="\t",
-        edge_list_header=True,
-        sources_column_number=0,
-        destinations_column_number=1,
-        edge_list_edge_types_column_number=2,
-        directed=False,
-        load_edge_list_in_parallel=False,
-        load_node_list_in_parallel=False,
     )
 
 if compound:
@@ -183,26 +205,6 @@ if compound:
         edge_dst_column="parent",
         edge_type_column="type",
     )
-
-st.session_state["lotus"] = pl.read_csv(
-    "data/molecules/230106_frozen_metadata.csv.gz",
-    dtypes={
-        "structure_xlogp": pl.Float32,
-        "structure_cid": pl.UInt32,
-        "organism_taxonomy_ncbiid": pl.UInt32,
-        "organism_taxonomy_ottid": pl.UInt32,
-        "structure_stereocenters_total": pl.UInt32,
-        "structure_stereocenters_unspecified": pl.UInt32,
-    },
-    infer_schema_length=50000,
-    null_values=["", "NA"],
-)
-st.session_state["lotus"] = st.session_state["lotus"].with_columns(
-    pl.col("organism_taxonomy_gbifid")
-    .map_elements(lambda x: np.nan if x.startswith("c(") else x)
-    .cast(pl.UInt32)
-    .alias("organism_taxonomy_gbifid")
-)
 
 if compound:
     st.session_state["graph_merged"] = (
