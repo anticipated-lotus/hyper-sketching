@@ -109,6 +109,7 @@ if selected_option == "Molecule":
         | (pl.col("structure_exact_mass").str.contains(text_search, literal=True))
         | (pl.col("structure_cid").str.contains(text_search, literal=True))
         | (pl.col("structure_nameIupac").str.contains("(?i)" + text_search))
+        | (pl.col("structure_nameTraditional").str.contains("(?i)" + text_search))
     )
 
     mask = mask.with_columns(

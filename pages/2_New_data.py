@@ -9,7 +9,7 @@ import streamlit as st
 from ensmallen import HyperSketchingPy
 from grape import Graph
 
-from src.models import XGBoost
+from src.models import LightGBM, XGBoost
 from src.molecules import convert_to_csv, filter_df, get_result, structure_query
 
 # Constants
@@ -36,6 +36,33 @@ if "lotus" not in st.session_state:
         .cast(pl.UInt32)
         .alias("organism_taxonomy_gbifid")
     )
+
+if "species_phylo" not in st.session_state:
+    st.session_state["species_phylo"] = pd.read_csv(
+        "./data/species/full_wikidata_taxonomy_nodes.csv"
+    )
+
+if "graph" not in st.session_state:
+    st.session_state["graph"] = Graph.from_csv(
+        name="lotus_with_wikidata",
+        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_nodes.csv",
+        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_edges.csv",
+        node_list_separator="\t",
+        node_list_header=True,
+        nodes_column_number=0,
+        node_list_node_types_column_number=1,
+        edge_list_separator="\t",
+        edge_list_header=True,
+        sources_column_number=0,
+        destinations_column_number=1,
+        edge_list_edge_types_column_number=2,
+        directed=False,
+        load_edge_list_in_parallel=False,
+        load_node_list_in_parallel=False,
+    )
+
+if "model" not in st.session_state:
+    st.session_state["model"] = LightGBM.load_model("lightgbm_model.pkl")
 
 
 # Functions
@@ -113,7 +140,7 @@ if compound:
     edges_np_classifier.dropna(inplace=True)
     edges_np_classifier.rename(columns={0: "child", 1: "parent"}, inplace=True)
     st.write("NP Classifier classified this molecule as : ")
-    st.write(edges_np_classifier)
+    st.write(edges_np_classifier["parent"])
     edges_np_classifier["type"] = "biolink:subclass_of"
 
     # then the nodes dataframe
@@ -132,67 +159,66 @@ if compound:
 
     # we then classify the compound with ClassyFire
     # We first create the edges dataframe
-    query_id = structure_query(compound)
-    with st.spinner(
-        "Please while the molecule is being classified on ClassyFire servers. This should not take more than a minute."
-    ):
-        sleep(10)
-    st.success("Done!")
-    edges_classyfire = filter_df(convert_to_csv(get_result(query_id)))
-    st.write("ClassyFire classified this molecule as : ")
-    st.write(edges_classyfire["Result"])
-    edges_classyfire.drop(
-        columns=[
-            "CompoundID",
-            "ClassifiedResults",
-            "Classification",
-            "Result",
-        ],
-        inplace=True,
-    )
-    edges_classyfire = pd.DataFrame(
-        pd.concat(
-            [
-                edges_classyfire["ChemOntID"],
-                pd.Series(compound),
-            ]
-        )[::-1]
-    ).reset_index(drop=True)
-
-    edges_classyfire[1] = edges_classyfire.iloc[:, 0].shift(-1)
-    edges_classyfire.dropna(inplace=True)
-    edges_classyfire["type"] = "biolink:subclass_of"
-    edges_classyfire.rename(
-        columns={
-            0: "child",
-            1: "parent",
-        },
-        inplace=True,
-    )
-
-    # then the nodes dataframe
-    nodes_classyfire = (
-        pd.DataFrame(
-            {
-                "node": pd.concat([edges_classyfire.child, edges_classyfire.parent]),
-                "type": "biolink:ChemicalEntity",
-            }
-        )
-        .drop_duplicates()
-        .reset_index(drop=True)
-    )
-
-if compound:
-    st.session_state["graph_classyfire"] = Graph.from_pd(
-        directed=False,
-        edges_df=edges_classyfire,
-        nodes_df=nodes_classyfire,
-        node_name_column="node",
-        node_type_column="type",
-        edge_src_column="child",
-        edge_dst_column="parent",
-        edge_type_column="type",
-    )
+    # query_id = structure_query(compound)
+    # with st.spinner(
+    # f"Please while the molecule is being classified on ClassyFire servers. This should not take more than a minute. The query id is : {query_id}"
+    # ):
+    # sleep(10)
+    # edges_classyfire = filter_df(convert_to_csv(get_result(query_id)))
+    # edges_classyfire.drop(
+    # columns=[
+    # "CompoundID",
+    # "ClassifiedResults",
+    # "Classification",
+    # "Result",
+    # ],
+    # inplace=True,
+    # )
+    # edges_classyfire = pd.DataFrame(
+    # pd.concat(
+    # [
+    # edges_classyfire["ChemOntID"],
+    # pd.Series(compound),
+    # ]
+    # )[::-1]
+    # ).reset_index(drop=True)
+#
+# edges_classyfire[1] = edges_classyfire.iloc[:, 0].shift(-1)
+# edges_classyfire.dropna(inplace=True)
+# edges_classyfire["type"] = "biolink:subclass_of"
+# edges_classyfire.rename(
+# columns={
+# 0: "child",
+# 1: "parent",
+# },
+# inplace=True,
+# )
+# st.write("ClassyFire classified this molecule as : ")
+# st.write(edges_classyfire["parent"])
+#
+# then the nodes dataframe
+# nodes_classyfire = (
+# pd.DataFrame(
+# {
+# "node": pd.concat([edges_classyfire.child, edges_classyfire.parent]),
+# "type": "biolink:ChemicalEntity",
+# }
+# )
+# .drop_duplicates()
+# .reset_index(drop=True)
+# )
+#
+# if compound:
+# st.session_state["graph_classyfire"] = Graph.from_pd(
+# directed=False,
+# edges_df=edges_classyfire,
+# nodes_df=nodes_classyfire,
+# node_name_column="node",
+# node_type_column="type",
+# edge_src_column="child",
+# edge_dst_column="parent",
+# edge_type_column="type",
+# )
 
 if compound:
     st.session_state["graph_np_classifier"] = Graph.from_pd(
@@ -209,7 +235,7 @@ if compound:
 if compound:
     st.session_state["graph_merged"] = (
         st.session_state["graph"]
-        | st.session_state["graph_classyfire"]
+        # | st.session_state["graph_classyfire"]
         | st.session_state["graph_np_classifier"]
     )
 

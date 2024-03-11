@@ -1,11 +1,11 @@
 import io
-import requests
-import pandas as pd
-from multiprocessing import Pool
-from collections.abc import Iterable
 import time
-from requests import HTTPError
+from collections.abc import Iterable
+from multiprocessing import Pool
 
+import pandas as pd
+import requests
+from requests import HTTPError
 
 URL = "http://classyfire.wishartlab.com"
 
@@ -85,6 +85,10 @@ def get_result(query_id: int, return_format="csv") -> str:
 
 
 def convert_to_csv(result: str) -> pd.DataFrame:
+    if pd.read_csv(io.StringIO(result)).empty:
+        raise ValueError(
+            "The dataframe is empty. This is usually due to Classyfire servers being overloaded and not having the time to classify the compound."
+        )
     return pd.read_csv(io.StringIO(result))
 
 
