@@ -1,3 +1,13 @@
+import os
+import sys
+
+# Get the absolute path of the current script
+current_script_path = os.path.abspath(__file__)
+
+# Navigate to the project root directory
+project_root = os.path.dirname(os.path.dirname(current_script_path))
+sys.path.insert(0, project_root)
+
 import gzip
 
 import numpy as np
