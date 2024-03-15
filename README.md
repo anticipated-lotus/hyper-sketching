@@ -36,7 +36,6 @@ Finally you can install the environment:
 poetry install
 ```
 
-
 ### Alternative: Install the environment in conda (NOT recommended):
 ```bash 
 conda env create --file environment.yml
@@ -73,8 +72,6 @@ mv ./ChemOnt_2_1.obo ./data/molecules/ChemOnt_2_1.obo
 wget https://raw.githubusercontent.com/mwang87/NP-Classifier/master/Classifier/dict/index_v1.json
 mv ./index_v1.json ./data/molecules/NPClassifier_index.json
 ```
-
-
 
 ### Prepare molecules
 First run the following command to prepare lotus, the molecules and the molecule ontology:
