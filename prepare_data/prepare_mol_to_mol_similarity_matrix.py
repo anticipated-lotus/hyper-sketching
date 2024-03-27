@@ -10,12 +10,11 @@ sys.path.insert(0, project_root)
 
 import gzip
 
+import faiss
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from transformers import AutoTokenizer
-
-import faiss
 
 
 def main():
@@ -58,12 +57,23 @@ def main():
     faiss.normalize_L2(embedding)
     index.add(embedding)
 
-    with gzip.open("./data/molecules/similarity_matrix.csv.gz", "w") as f:
-        for i in tqdm(range(SIZE)):
-            D, I = index.search(embedding[i].reshape(1, -1), SIZE)
-            out_array = D.reshape(-1)[np.argsort(I.reshape(-1))].astype("float16")
-            out_array[:i] = 0
-            np.savetxt(f, [out_array], delimiter=",")
+    # Split the similarity matrix into multiple smaller files
+    num_files = 1000
+    chunk_size = SIZE // num_files
+
+    for file_num in range(num_files):
+        start_index = file_num * chunk_size
+        end_index = (file_num + 1) * chunk_size
+
+        with gzip.open(
+            f"./data/molecules/similarity_matrix/similarity_matrix_{file_num}.csv.gz",
+            "w",
+        ) as f:
+            for i in tqdm(range(start_index, end_index)):
+                D, I = index.search(embedding[i].reshape(1, -1), SIZE)
+                out_array = D.reshape(-1)[np.argsort(I.reshape(-1))].astype("float16")
+                out_array[:i] = 0
+                np.savetxt(f, [out_array], delimiter=",")
 
 
 if __name__ == "__main__":
