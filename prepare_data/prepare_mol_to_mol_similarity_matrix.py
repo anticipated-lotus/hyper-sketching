@@ -14,11 +14,11 @@ import faiss
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from transformers import AutoTokenizer
+
+from src.utils import calculate_fingerprint_parallel
 
 
 def main():
-    tokenizer = AutoTokenizer.from_pretrained("seyonec/ChemBERTa-zinc-base-v1")
     lotus = pd.read_csv(
         "./data/molecules/230106_frozen_metadata.csv.gz", low_memory=False
     )
@@ -40,12 +40,9 @@ def main():
     )
     wd = wd.reindex(index).reset_index(drop=True)
 
-    embedding_full = tokenizer(
-        list(wd["structure_smiles_2D"].values),
-        max_length=1024,
-        padding="max_length",
-        return_tensors="np",
-    )["input_ids"]
+    embedding_full = np.array(
+        calculate_fingerprint_parallel(wd["structure_smiles_2D"].values, radi=2)
+    )
 
     SIZE = len(embedding_full)
 
@@ -61,7 +58,7 @@ def main():
     num_files = 1000
     chunk_size = SIZE // num_files
 
-    for file_num in range(num_files):
+    for file_num in tqdm(range(num_files)):
         start_index = file_num * chunk_size
         end_index = (file_num + 1) * chunk_size
 

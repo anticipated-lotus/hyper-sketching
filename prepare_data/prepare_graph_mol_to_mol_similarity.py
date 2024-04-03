@@ -15,12 +15,11 @@ from tqdm import tqdm
 
 
 @Cache(
-    cache_dir="data/molecules/graph_of_mol_to_mol_similarity/num_files_{num_files}/{file_num}/{_hash}",
+    cache_dir="./data/molecules/graph_of_mol_to_mol_similarity/num_files_{num_files}/{file_num}/{_hash}",
     cache_path={
-        "edges": "cosine_similarity_edges.csv",
-        "nodes": "cosine_similarity_nodes.csv",
+        "edges": "{cache_dir}/cosine_similarity_edges.csv",
+        "nodes": "{cache_dir}/cosine_similarity_nodes.csv",
     },
-    use_approximated_hash=True,
 )
 def loop(file_num: int, num_files: int, wd: pd.DataFrame, SIZE: int, chunk_size: int):
     start = file_num * chunk_size
