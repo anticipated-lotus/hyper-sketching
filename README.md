@@ -36,7 +36,6 @@ Finally you can install the environment:
 poetry install
 ```
 
-
 ### Alternative: Install the environment in conda (NOT recommended):
 ```bash 
 conda env create --file environment.yml
@@ -73,8 +72,6 @@ mv ./ChemOnt_2_1.obo ./data/molecules/ChemOnt_2_1.obo
 wget https://raw.githubusercontent.com/mwang87/NP-Classifier/master/Classifier/dict/index_v1.json
 mv ./index_v1.json ./data/molecules/NPClassifier_index.json
 ```
-
-
 
 ### Prepare molecules
 First run the following command to prepare lotus, the molecules and the molecule ontology:
@@ -145,6 +142,14 @@ You can choose which graph you want to use for the analysis. Here is an explanat
 
 
 In our case we will either use the `full_graph_with_ncbi_clean` or `full_wd_taxonomy_with_molecules_in_lotus_clean`. Further tests need to be made to see which one is the best for the predictions.
+
+TODO :
+- add to Zotero graph of mol to mol similarity (with explanations)
+- Add a `wget` to get that graph and avoid users running stuff for hours. 
+- merge current graph with graph of mol to mol similarity and make it the default graph for the analysis.
+- add explanation of this new graph above. 
+
+
 
 ### Run the analysis
 This is not possible at the moment because the module `ensmallen` from [grape](https://github.com/AnacletoLAB/grape) does not support the HyperSketching yet. Once it will be available, we recommend to first run the `run_model_dummy.py` script with `max_eval=1`. This will first create the sketching of the different holdouts of training and testing. Then you can run the script with `max_eval=100` or more to find the best parameters of the model.
