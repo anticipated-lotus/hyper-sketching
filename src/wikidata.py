@@ -1,9 +1,11 @@
-import pandas as pd
 import sys
-from SPARQLWrapper import SPARQLWrapper, JSON
 import time
-from requests import ConnectTimeout
+from io import StringIO
+
+import pandas as pd
 from cache_decorator import Cache
+from requests import ConnectTimeout, request
+from SPARQLWrapper import JSON, SPARQLWrapper
 
 
 def get_results(endpoint_url, query):
@@ -182,3 +184,119 @@ def get_full_taxonomy_of_wikidata():
         time.sleep(0.5)
         results = get_results(endpoint_url, query)
         return pd.json_normalize(results["results"]["bindings"])
+
+
+def get_class_or_subclass_of_chemical_structures():
+    """
+    This query was inspired by a query from Adriano Rutz. See: https://adafede.github.io/sparql/queries/wd_chemicals_classes.html
+
+    Retrieves the class or subclass of the chemical structures in Wikidata.
+
+    Returns as dataframe with 3 columns : the instance, the class and the structure.
+    The instance is the instance of the `class`. The class is the parent node and the structure is the child node.
+    Returns:
+        pd.DataFrame: The class or subclass of the chemical structures as a pandas DataFrame.
+    """
+    method = "GET"
+    QLEVER_URL = "https://qlever.cs.uni-freiburg.de/api/wikidata"
+    query = """#+ summary: Chemicals subclass of chemical class
+    #+ description: Chemicals subclass of chemical class
+    #+ endpoint: https://query.wikidata.org/bigdata/namespace/wdq/sparql
+    #+ pagination: 100
+    #+ method: GET
+    #+ tags:
+    #+   - Chemicals
+    #+   - Chemical classes
+    
+    PREFIX wd: <http://www.wikidata.org/entity/>
+    PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+    PREFIX hint: <http://www.bigdata.com/queryHints#>
+    #title: Chemicals subclass of chemical class
+    SELECT ?instance ?structure ?class WHERE {
+        VALUES ?instance {
+            wd:Q15711994 # group of isomeric entities
+            wd:Q17339814 # group or class of chemical substances
+            wd:Q47154513 # structural class of chemical entities
+            wd:Q55640599 # group of chemical entities
+            wd:Q56256173 # class of chemical entities with similar applications or functions
+            wd:Q56256178 # class of chemical entities with similar source or occurrence
+            wd:Q55662456 # group of ortho, meta, para isomers
+            wd:Q59199015 # group of stereoisomers
+            wd:Q72070508 # group or class of chemical entities
+            wd:Q74892521 # imprecise class of chemical entities
+        }
+        ?class wdt:P31 ?instance.
+        ?structure wdt:P279 ?class.
+    }"""
+
+    out = request(
+        method,
+        QLEVER_URL,
+        params={"query": query},
+        headers={
+            "Accept": "text/csv",
+            "Accept-Encoding": "gzip,deflate",
+            "User-Agent": "LOTUS project database dumper",
+        },
+        timeout=70,
+    ).text
+
+    return pd.read_csv(StringIO(out))
+
+
+def get_wikidata_chemical_class_taxonomy():
+    """
+    This query was inspired by a query from Adriano Rutz. See: https://adafede.github.io/sparql/queries/wd_chemical_classes_taxonomy.html
+
+    Retrieves the chemical class taxonomy of Wikidata.
+
+    Returns as dataframe with 3 columns : the instance, the class and the parent.
+    The instance is the instance of the `class` (child node). The class is the child node and the parent is the parent node.
+    """
+    method = "GET"
+    QLEVER_URL = "https://qlever.cs.uni-freiburg.de/api/wikidata"
+
+    query = """
+    #+ summary: Chemical classes taxonomy
+    #+ description: Chemical classes taxonomy
+    #+ endpoint: https://query.wikidata.org/bigdata/namespace/wdq/sparql
+    #+ pagination: 100
+    #+ method: GET
+    #+ tags:
+    #+   - Chemical classes
+    
+    PREFIX wd: <http://www.wikidata.org/entity/>
+    PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+    PREFIX wikibase: <http://wikiba.se/ontology#>
+    PREFIX bd: <http://www.bigdata.com/rdf#>
+    PREFIX hint: <http://www.bigdata.com/queryHints#>
+    #title: Chemical classes taxonomy
+    SELECT * WHERE {
+        VALUES ?instance {
+            wd:Q15711994 # group of isomeric entities
+            wd:Q17339814 # group or class of chemical substances
+            wd:Q47154513 # structural class of chemical entities
+            wd:Q55640599 # group of chemical entities
+            wd:Q56256173 # class of chemical entities with similar applications or functions
+            wd:Q56256178 # class of chemical entities with similar source or occurrence
+            wd:Q55662456 # group of ortho, meta, para isomers
+            wd:Q59199015 # group of stereoisomers
+            wd:Q72070508 # group or class of chemical entities
+            wd:Q74892521 # imprecise class of chemical entities
+        }
+        ?class wdt:P31 ?instance.
+        OPTIONAL { ?class wdt:P279 ?parent. }
+    }"""
+    out = request(
+        method,
+        QLEVER_URL,
+        params={"query": query},
+        headers={
+            "Accept": "text/csv",
+            "Accept-Encoding": "gzip,deflate",
+            "User-Agent": "LOTUS project database dumper",
+        },
+        timeout=70,
+    ).text
+
+    return pd.read_csv(StringIO(out))
