@@ -31,7 +31,7 @@ def main():
         combination="addition",
         normalize=False,
         model_class=LightGBM,
-        max_evals=1,
+        max_evals=100,
     )
 
 

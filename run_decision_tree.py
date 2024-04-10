@@ -27,11 +27,11 @@ def main():
         graph=graph,
         number_of_external_holdouts=10,
         number_of_internal_holdouts=3,
-        number_of_hops=3,
+        number_of_hops=2,
         combination="addition",
         normalize=False,
         model_class=DecisionTree,
-        max_evals=1,
+        max_evals=100,
     )
 
 
