@@ -9,8 +9,8 @@ project_root = os.path.dirname(os.path.dirname(current_script_path))
 sys.path.insert(0, project_root)
 
 
-from grape import Graph
 import pandas as pd
+from grape import Graph
 
 
 def main():
@@ -98,6 +98,22 @@ def main():
         directed=True,
     )
 
+    mol_to_mol_similarity = Graph.from_csv(
+        name="mol_to_mol_similarity",
+        node_path="./data/molecules/mol_to_mol_similarity_nodes.csv",
+        edge_path="./data/molecules/mol_to_mol_similarity_edges.csv",
+        node_list_separator=",",
+        node_list_header=True,
+        nodes_column_number=1,
+        node_list_node_types_column_number=2,
+        edge_list_separator=",",
+        edge_list_header=True,
+        sources_column_number=1,
+        destinations_column_number=2,
+        edge_list_edge_types_column_number=4,
+        directed=True,
+    )
+
     chemicals = chemont | molecules_to_chemont
 
     chemical_with_np_classifier = chemicals | molecules_to_np
@@ -151,6 +167,27 @@ def main():
 
     full_graph_clean.dump_edges(
         path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_edges.csv",
+        header=True,
+        directed=True,
+        edge_types_column_number=2,
+        edge_type_column="edge_type",
+    )
+
+    full_graph_clean_with_mol_to_mol_similarity = (
+        full_graph_clean | mol_to_mol_similarity
+    )
+
+    full_graph_clean_with_mol_to_mol_similarity.dump_nodes(
+        path="./data/full_graph_clean_nodes.csv",
+        header=True,
+        nodes_column_number=0,
+        nodes_column="nodes",
+        node_types_column_number=1,
+        node_type_column="type",
+    )
+
+    full_graph_clean_with_mol_to_mol_similarity.dump_edges(
+        path="./data/full_graph_clean_edges.csv",
         header=True,
         directed=True,
         edge_types_column_number=2,
