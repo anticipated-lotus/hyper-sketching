@@ -6,7 +6,7 @@ from src.models import ModelDummy
 
 def main():
     graph = Graph.from_csv(
-        name="lotus_with_wikidata",
+        name="full_graph_clean",
         node_path="./data/full_graph_clean_nodes.csv",
         edge_path="./data/full_graph_clean_edges.csv",
         node_list_separator="\t",

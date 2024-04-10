@@ -1,16 +1,14 @@
 from grape import Graph
+
 from src import run
 from src.models import LightGBM
 
 
 def main():
     graph = Graph.from_csv(
-        # name="lotus_with_ncbi",
-        # node_path="./data/full_graph_with_ncbi_clean_nodes.csv",
-        # edge_path="./data/full_graph_with_ncbi_clean_edges.csv",
-        name="lotus_with_wikidata",
-        node_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_nodes.csv",
-        edge_path="./data/full_wd_taxonomy_with_molecules_in_lotus_clean_edges.csv",
+        name="full_graph_clean",
+        node_path="./data/full_graph_clean_nodes.csv",
+        edge_path="./data/full_graph_clean_edges.csv",
         node_list_separator="\t",
         node_list_header=True,
         nodes_column_number=0,
@@ -20,7 +18,6 @@ def main():
         sources_column_number=0,
         destinations_column_number=1,
         edge_list_edge_types_column_number=2,
-        # directed=True,
         directed=False,
         load_edge_list_in_parallel=False,
         load_node_list_in_parallel=False,
