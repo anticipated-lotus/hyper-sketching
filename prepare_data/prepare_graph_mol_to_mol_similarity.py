@@ -53,7 +53,7 @@ def loop(file_num: int, num_files: int, wd: pd.DataFrame, SIZE: int, chunk_size:
             variable_name="column",
             value_name="value",
         )
-        .filter(pl.col("value") > 0.9)
+        .filter(pl.col("value") > 0.98)
         .filter(pl.col("index") != pl.col("column"))
         .rename({"index": "child", "column": "parent", "value": "weight"})
         .with_columns(pl.lit("biolink:similar_to").alias("type"))
