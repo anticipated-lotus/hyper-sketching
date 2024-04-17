@@ -1,17 +1,21 @@
-import grape
+from typing import Dict
+
+import ensmallen
+import numpy as np
 from cache_decorator import Cache
+from regex import D
 
 
 def hyper_sketching(
-    graph,
-    graph_with_only_in_taxon_edges,
-    graph_with_only_in_taxon_edges_validation_or_test,
-    graph_with_only_in_taxon_edges_negative,
-    graph_with_only_in_taxon_edges_validation_or_test_negative,
-    number_of_hops,
+    graph: ensmallen.Graph,
+    graph_with_only_in_taxon_edges: ensmallen.Graph,
+    graph_with_only_in_taxon_edges_validation_or_test: ensmallen.Graph,
+    graph_with_only_in_taxon_edges_negative: ensmallen.Graph,
+    graph_with_only_in_taxon_edges_validation_or_test_negative: ensmallen.Graph,
+    number_of_hops: int,
     combination="addition",
     normalize=False,
-):
+) -> Dict[str, np.ndarray]:
     from ensmallen import HyperSketchingPy
 
     sketching_features = HyperSketchingPy(
@@ -96,7 +100,7 @@ def hyper_sketching_outer(
     graph_with_only_in_taxon_edges_validation_or_test_negative,
     combination="addition",
     normalize=False,
-):
+) -> Dict[str, np.ndarray]:
     return hyper_sketching(
         graph,
         graph_with_only_in_taxon_edges,
@@ -129,7 +133,7 @@ def hyper_sketching_internal(
     graph_with_only_in_taxon_edges_validation_or_test_negative,
     combination="addition",
     normalize=False,
-):
+) -> Dict[str, np.ndarray]:
     return hyper_sketching(
         graph,
         graph_with_only_in_taxon_edges,

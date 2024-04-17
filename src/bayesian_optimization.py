@@ -1,8 +1,12 @@
-from hyperopt import fmin, tpe, space_eval
+from typing import Any, Callable, Dict
+
+from hyperopt import fmin, space_eval, tpe
 from hyperopt.early_stop import no_progress_loss
 
 
-def hyperopt_optimization(objective, space, max_evals):
+def hyperopt_optimization(
+    objective: Callable, space: Dict[str, Callable], max_evals: int
+) -> Any:
     best = fmin(
         fn=objective,  # Objective Function to optimize
         space=space,  # Hyperparameter's Search Space

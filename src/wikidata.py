@@ -8,7 +8,7 @@ from requests import ConnectTimeout, request
 from SPARQLWrapper import JSON, SPARQLWrapper
 
 
-def get_results(endpoint_url, query):
+def get_results(endpoint_url: str, query: str):
     """
     Executes a SPARQL query on the specified endpoint URL and returns the results in JSON format.
 
@@ -88,7 +88,7 @@ def get_taxonomy_of_species(species_as_wikidata_entity: str) -> pd.DataFrame:
         return pd.json_normalize(results["results"]["bindings"])
 
 
-def get_all_species_in_lotus():
+def get_all_species_in_lotus() -> pd.DataFrame:
     """
     Retrieves all species related to Lotus from Wikidata.
 
@@ -119,7 +119,7 @@ def get_all_species_in_lotus():
     )
 
 
-def convert_to_edges(df: pd.DataFrame):
+def convert_to_edges(df: pd.DataFrame) -> pd.DataFrame:
     """
     Converts a DataFrame of taxonomy information into edges.
 
@@ -141,7 +141,7 @@ def convert_to_edges(df: pd.DataFrame):
     cache_dir="data/species/all_species/{species}/",
     cache_path="{cache_dir}/{_hash}.csv.gz",
 )
-def taxonomy_in_edges(species: str):
+def taxonomy_in_edges(species: str) -> pd.DataFrame:
     """
     Retrieves the taxonomy information for a single species and converts it into edges.
 
@@ -156,7 +156,7 @@ def taxonomy_in_edges(species: str):
     return pd.DataFrame(out)
 
 
-def get_full_taxonomy_of_wikidata():
+def get_full_taxonomy_of_wikidata() -> pd.DataFrame:
     endpoint_url = "https://query.wikidata.org/sparql"
 
     query = """PREFIX hint: <http://www.bigdata.com/queryHints#>
@@ -186,7 +186,7 @@ def get_full_taxonomy_of_wikidata():
         return pd.json_normalize(results["results"]["bindings"])
 
 
-def get_class_or_subclass_of_chemical_structures():
+def get_class_or_subclass_of_chemical_structures() -> pd.DataFrame:
     """
     This query was inspired by a query from Adriano Rutz. See: https://adafede.github.io/sparql/queries/wd_chemicals_classes.html
 
@@ -244,7 +244,7 @@ def get_class_or_subclass_of_chemical_structures():
     return pd.read_csv(StringIO(out))
 
 
-def get_wikidata_chemical_class_taxonomy():
+def get_wikidata_chemical_class_taxonomy() -> pd.DataFrame:
     """
     This query was inspired by a query from Adriano Rutz. See: https://adafede.github.io/sparql/queries/wd_chemical_classes_taxonomy.html
 

@@ -1,13 +1,15 @@
+from typing import Dict, Type
+
 import grape
-from grape import Graph
+import numpy as np
 from cache_decorator import Cache
-from typing import Type, Dict
+from grape import Graph
+
+from .bayesian_optimization import hyperopt_optimization
+from .experiment import experiments
+from .internal_holdouts import internal_holdout
 from .models.abstract_model import AbstractModel
 from .sketching import hyper_sketching_outer
-from .experiment import experiments
-import numpy as np
-from .internal_holdouts import internal_holdout
-from .bayesian_optimization import hyperopt_optimization
 
 
 @Cache(
@@ -27,7 +29,7 @@ def external_holdout(
     normalize: bool,
     model_class: Type[AbstractModel],
     max_evals: int,
-):
+) -> Dict:
     # split the graph containg only "in_taxon" edges into training and testing
     # this will be tjhe positive training and testing
     only_in_taxon_train, only_in_taxon_test = graph_with_only_in_taxon.random_holdout(
